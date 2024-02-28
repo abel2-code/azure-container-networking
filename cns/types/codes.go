@@ -3,47 +3,53 @@ package types
 type ResponseCode int
 
 // ResponseCode definitions
+// 4000 codes cannot be retried
+// 5000 codes can be retried
+// x100 codes are related to network, connectivity, and environment
+// x300 codes are related to container, orchestrator, and virtualization
+// x500 codes are related to authorization and unexpected errors
+// x700 codes are related agent and internal server errors
 const (
-	Success                                ResponseCode = 0
-	UnsupportedNetworkType                 ResponseCode = 1
-	InvalidParameter                       ResponseCode = 2
-	UnsupportedEnvironment                 ResponseCode = 3
-	UnreachableHost                        ResponseCode = 4
-	ReservationNotFound                    ResponseCode = 5
-	MalformedSubnet                        ResponseCode = 8
-	UnreachableDockerDaemon                ResponseCode = 9
-	UnspecifiedNetworkName                 ResponseCode = 10
-	NotFound                               ResponseCode = 14
-	AddressUnavailable                     ResponseCode = 15
-	NetworkContainerNotSpecified           ResponseCode = 16
-	CallToHostFailed                       ResponseCode = 17
-	UnknownContainerID                     ResponseCode = 18
-	UnsupportedOrchestratorType            ResponseCode = 19
-	DockerContainerNotSpecified            ResponseCode = 20
-	UnsupportedVerb                        ResponseCode = 21
-	UnsupportedNetworkContainerType        ResponseCode = 22
-	InvalidRequest                         ResponseCode = 23
-	NetworkJoinFailed                      ResponseCode = 24
-	NetworkContainerPublishFailed          ResponseCode = 25
-	NetworkContainerUnpublishFailed        ResponseCode = 26
-	InvalidPrimaryIPConfig                 ResponseCode = 27
-	PrimaryCANotSame                       ResponseCode = 28
-	InconsistentIPConfigState              ResponseCode = 29
-	InvalidSecondaryIPConfig               ResponseCode = 30
-	NetworkContainerVfpProgramPending      ResponseCode = 31
-	FailedToAllocateIPConfig               ResponseCode = 32
-	EmptyOrchestratorContext               ResponseCode = 33
-	UnsupportedOrchestratorContext         ResponseCode = 34
-	NetworkContainerVfpProgramComplete     ResponseCode = 35
-	NetworkContainerVfpProgramCheckSkipped ResponseCode = 36
-	NmAgentSupportedApisError              ResponseCode = 37
-	UnsupportedNCVersion                   ResponseCode = 38
-	FailedToRunIPTableCmd                  ResponseCode = 39
-	NilEndpointStateStore                  ResponseCode = 40
-	NmAgentInternalServerError             ResponseCode = 41
-	StatusUnauthorized                     ResponseCode = 42
-	UnsupportedAPI                         ResponseCode = 43
-	UnexpectedError                        ResponseCode = 99
+	Success                                ResponseCode = 2000
+	NetworkContainerVfpProgramComplete     ResponseCode = 2352
+	InvalidParameter                       ResponseCode = 4111
+	MalformedSubnet                        ResponseCode = 4121
+	NetworkContainerNotSpecified           ResponseCode = 4131
+	ReservationNotFound                    ResponseCode = 4141
+	UnknownContainerID                     ResponseCode = 4151
+	UnreachableDockerDaemon                ResponseCode = 4161
+	UnreachableHost                        ResponseCode = 4164
+	UnspecifiedNetworkName                 ResponseCode = 4175
+	UnsupportedEnvironment                 ResponseCode = 4181
+	UnsupportedNetworkType                 ResponseCode = 4185
+	DockerContainerNotSpecified            ResponseCode = 4311
+	EmptyOrchestratorContext               ResponseCode = 4321
+	InvalidPrimaryIPConfig                 ResponseCode = 4341
+	InvalidRequest                         ResponseCode = 4342
+	InvalidSecondaryIPConfig               ResponseCode = 4345
+	NilEndpointStateStore                  ResponseCode = 4356
+	PrimaryCANotSame                       ResponseCode = 4361
+	UnsupportedNCVersion                   ResponseCode = 4381
+	UnsupportedNetworkContainerType        ResponseCode = 4383
+	UnsupportedOrchestratorContext         ResponseCode = 4385
+	UnsupportedOrchestratorType            ResponseCode = 4386
+	UnsupportedVerb                        ResponseCode = 4390
+	StatusUnauthorized                     ResponseCode = 4561
+	UnexpectedError                        ResponseCode = 4580
+	UnsupportedAPI                         ResponseCode = 4591
+	AddressUnavailable                     ResponseCode = 5101
+	CallToHostFailed                       ResponseCode = 5105
+	InconsistentIPConfigState              ResponseCode = 5110
+	NetworkContainerPublishFailed          ResponseCode = 5133
+	NetworkContainerUnpublishFailed        ResponseCode = 5135
+	NetworkJoinFailed                      ResponseCode = 5138
+	NotFound                               ResponseCode = 5140
+	FailedToAllocateIPConfig               ResponseCode = 5331
+	NetworkContainerVfpProgramCheckSkipped ResponseCode = 5351
+	NetworkContainerVfpProgramPending      ResponseCode = 5354
+	FailedToRunIPTableCmd                  ResponseCode = 5721
+	NmAgentInternalServerError             ResponseCode = 5751
+	NmAgentSupportedApisError              ResponseCode = 5755
 )
 
 // nolint:gocyclo
@@ -58,7 +64,9 @@ func (c ResponseCode) String() string {
 	case EmptyOrchestratorContext:
 		return "EmptyOrchestratorContext"
 	case FailedToAllocateIPConfig:
-		return "FailedToAllocateIpConfig"
+		return "FailedToAllocateIPConfig"
+	case FailedToRunIPTableCmd:
+		return "FailedToRunIPTableCmd"
 	case InconsistentIPConfigState:
 		return "InconsistentIPConfigState"
 	case InvalidParameter:
@@ -85,6 +93,10 @@ func (c ResponseCode) String() string {
 		return "NetworkContainerVfpProgramPending"
 	case NetworkJoinFailed:
 		return "NetworkJoinFailed"
+	case NilEndpointStateStore:
+		return "NilEndpointStateStore"
+	case NmAgentInternalServerError:
+		return "NmAgentInternalServerError"
 	case NmAgentSupportedApisError:
 		return "NmAgentSupportedApisError"
 	case NotFound:
@@ -93,6 +105,8 @@ func (c ResponseCode) String() string {
 		return "PrimaryCANotSame"
 	case ReservationNotFound:
 		return "ReservationNotFound"
+	case StatusUnauthorized:
+		return "StatusUnauthorized"
 	case Success:
 		return "Success"
 	case UnexpectedError:
@@ -105,6 +119,8 @@ func (c ResponseCode) String() string {
 		return "UnreachableHost"
 	case UnspecifiedNetworkName:
 		return "UnspecifiedNetworkName"
+	case UnsupportedAPI:
+		return "UnsupportedAPI"
 	case UnsupportedEnvironment:
 		return "UnsupportedEnvironment"
 	case UnsupportedNCVersion:
@@ -119,10 +135,6 @@ func (c ResponseCode) String() string {
 		return "UnsupportedOrchestratorType"
 	case UnsupportedVerb:
 		return "UnsupportedVerb"
-	case NmAgentInternalServerError:
-		return "NmAgentInternalServerError"
-	case StatusUnauthorized:
-		return "StatusUnauthorized"
 	default:
 		return "UnknownError"
 	}

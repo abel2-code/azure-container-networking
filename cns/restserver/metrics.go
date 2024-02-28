@@ -119,8 +119,8 @@ func init() {
 	)
 }
 
-// Every http response is 200 so we really want cns  response code.
-// Hard tto do with middleware unless we derserialize the responses but making it an explit header works around it.
+// Every http response is 200 so we really want cns response code.
+// Hard to do with middleware unless we deserialize the responses but making it an explicit header works around it.
 // if that doesn't work we could have a separate countervec just for response codes.
 
 func newHandlerFuncWithHistogram(handler http.HandlerFunc, histogram *prometheus.HistogramVec) http.HandlerFunc {
