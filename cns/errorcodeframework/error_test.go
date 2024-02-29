@@ -1,22 +1,19 @@
-package errorcodeframework_test
+package errorcodeframework
 
 import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/Azure/azure-container-networking/cns/errorcodeframework"
-	"github.com/Azure/azure-container-networking/cns/types"
 )
 
 func TestNewErrorCode(t *testing.T) {
-	err := errorcodeframework.NewErrorCode(http.StatusBadRequest, types.InvalidParameter, "Bad Request")
+	err := NewErrorCode(http.StatusBadRequest, InvalidParameter, "Bad Request")
 	if err == nil {
 		t.Errorf("NewErrorCode returned nil error")
 	}
 
-	customErr, ok := err.(*errorcodeframework.ErrorCode)
+	customErr, ok := err.(*ErrorCode)
 	if !ok {
 		t.Errorf("NewErrorCode did not return a custom error")
 	}
@@ -25,7 +22,7 @@ func TestNewErrorCode(t *testing.T) {
 		t.Errorf("HTTPErrorCode was not set correctly")
 	}
 
-	if customErr.SubCode != types.InvalidParameter {
+	if customErr.SubCode != InvalidParameter {
 		t.Errorf("SubCode was not set correctly")
 	}
 
@@ -36,32 +33,32 @@ func TestNewErrorCode(t *testing.T) {
 
 func TestIsCustomErrorCode(t *testing.T) {
 	err := errors.New("This is a regular error")
-	if errorcodeframework.IsCustomErrorCode(err) {
+	if IsCustomErrorCode(err) {
 		t.Errorf("IsCustomErrorCode returned true for a regular error")
 	}
 
-	customErr := errorcodeframework.NewErrorCode(http.StatusBadRequest, types.InvalidParameter, "Bad Request")
-	if !errorcodeframework.IsCustomErrorCode(customErr) {
+	customErr := NewErrorCode(http.StatusBadRequest, InvalidParameter, "Bad Request")
+	if !IsCustomErrorCode(customErr) {
 		t.Errorf("IsCustomErrorCode returned false for a custom error")
 	}
 }
 
 func TestGetHTTPErrorCode(t *testing.T) {
 	err := errors.New("This is a regular error")
-	if errorcodeframework.GetHTTPErrorCode(err) != http.StatusInternalServerError {
+	if GetHTTPErrorCode(err) != http.StatusInternalServerError {
 		t.Errorf("GetHTTPErrorCode returned incorrect HTTP status code for a regular error")
 	}
 
-	customErr := errorcodeframework.NewErrorCode(http.StatusBadRequest, types.InvalidParameter, "Bad Request")
-	if errorcodeframework.GetHTTPErrorCode(customErr) != http.StatusBadRequest {
+	customErr := NewErrorCode(http.StatusBadRequest, InvalidParameter, "Bad Request")
+	if GetHTTPErrorCode(customErr) != http.StatusBadRequest {
 		t.Errorf("GetHTTPErrorCode returned incorrect HTTP status code for a custom error")
 	}
 }
 
 func TestHandleError(t *testing.T) {
 	w := httptest.NewRecorder()
-	err := errorcodeframework.NewErrorCode(http.StatusBadRequest, types.InvalidParameter, "Bad Request")
-	customErr := err.(*errorcodeframework.ErrorCode)
+	err := NewErrorCode(http.StatusBadRequest, InvalidParameter, "Bad Request")
+	customErr := err.(*ErrorCode)
 	http.Error(w, customErr.ErrorMessage, customErr.HTTPErrorCode)
 
 	if w.Code != http.StatusBadRequest {

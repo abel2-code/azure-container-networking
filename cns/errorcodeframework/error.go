@@ -2,15 +2,14 @@ package errorcodeframework
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
-	"github.com/Azure/azure-container-networking/cns/types"
+	"github.com/Azure/azure-container-networking/cns/logger"
 )
 
 type ErrorCode struct {
 	HTTPErrorCode int
-	SubCode       types.ResponseCode
+	SubCode       ResponseCode
 	ErrorMessage  string
 }
 
@@ -18,7 +17,7 @@ func (e *ErrorCode) Error() string {
 	return fmt.Sprintf("%d: %d (%s)", e.HTTPErrorCode, e.SubCode, e.ErrorMessage)
 }
 
-func NewErrorCode(httpCode int, subCode types.ResponseCode, message string) error {
+func NewErrorCode(httpCode int, subCode ResponseCode, message string) error {
 	return &ErrorCode{
 		HTTPErrorCode: httpCode,
 		SubCode:       subCode,
@@ -41,5 +40,5 @@ func GetHTTPErrorCode(err error) int {
 
 func (e *ErrorCode) HandleError(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, e.ErrorMessage, e.HTTPErrorCode)
-	log.Printf("Error: %s", e.Error())
+	logger.Printf("Error: %s", e.Error())
 }
