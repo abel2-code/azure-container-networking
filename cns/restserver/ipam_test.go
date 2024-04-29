@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/netip"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/Azure/azure-container-networking/cns"
@@ -1696,5 +1697,28 @@ func TestIPAMGetK8sSWIFTv2IPFailure(t *testing.T) {
 	available = svc.GetAvailableIPConfigs()
 	if len(available) != 2 {
 		t.Fatal("Expected available ips to be 2 since we expect the IP to not be assigned")
+	}
+}
+
+func TestCheckNCStatuses(t *testing.T) {
+	mockStatuses := multiContainerStatus{
+		testNCID: {CreateNetworkContainerRequest: cns.CreateNetworkContainerRequest{NCStatus: cns.NCUpdateSuccess}},
+	}
+	unsuccessfulStatuses := mockStatuses.GetUnsuccessfulStatusErrors()
+	if unsuccessfulStatuses != "" {
+		t.Fatalf("Expected no failures but got failures")
+	}
+
+	mockStatuses = multiContainerStatus{
+		testNCID:   {CreateNetworkContainerRequest: cns.CreateNetworkContainerRequest{NCStatus: cns.NCUpdateSuccess}},
+		testNCIDv6: {CreateNetworkContainerRequest: cns.CreateNetworkContainerRequest{NCStatus: cns.NCUpdateSubnetFull}},
+	}
+	unsuccessfulStatuses = mockStatuses.GetUnsuccessfulStatusErrors()
+	if unsuccessfulStatuses == "" {
+		t.Fatalf("Expected failures but got none")
+	}
+
+	if !strings.Contains(unsuccessfulStatuses, testNCIDv6) {
+		t.Fatalf("Expected %s to be in the unsuccessful statuses", testNCIDv6)
 	}
 }

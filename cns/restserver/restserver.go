@@ -2,9 +2,11 @@ package restserver
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/http"
 	"net/http/pprof"
+	"strings"
 	"sync"
 	"time"
 
@@ -133,6 +135,21 @@ type containerstatus struct {
 	HostVersion                   string
 	CreateNetworkContainerRequest cns.CreateNetworkContainerRequest
 	VfpUpdateComplete             bool // True when VFP programming is completed for the NC
+}
+
+type multiContainerStatus map[string]containerstatus
+
+func (mcs *multiContainerStatus) GetUnsuccessfulStatusErrors() string {
+	var unsuccessfulStatuses []string
+	for ncID := range *mcs {
+		ncStatus := (*mcs)[ncID].CreateNetworkContainerRequest.NCStatus
+		if ncStatus != cns.NCUpdateSuccess {
+			unsuccessfulStatus := fmt.Sprintf("Expected status for NC %s to be %s but got %s", ncID, string(cns.NCUpdateSuccess), string(ncStatus))
+			unsuccessfulStatuses = append(unsuccessfulStatuses, unsuccessfulStatus)
+		}
+	}
+
+	return strings.Join(unsuccessfulStatuses, "\n")
 }
 
 // httpRestServiceState contains the state we would like to persist.

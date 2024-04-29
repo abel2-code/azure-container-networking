@@ -116,6 +116,23 @@ func (service *HTTPRestService) RequestIPConfigHandler(w http.ResponseWriter, r 
 		return
 	}
 
+	// Check the status of the NC
+	ncStatuses := multiContainerStatus(service.state.ContainerStatus)
+	if unsuccessfulStatuses := ncStatuses.GetUnsuccessfulStatusErrors(); unsuccessfulStatuses != "" {
+		// If the status is anything other than success, we send a response back with the actual status and NC ID.
+		reserveResp := &cns.IPConfigResponse{
+			Response: cns.Response{
+				ReturnCode: types.FailedToAllocateIPConfig,
+				Message:    unsuccessfulStatuses,
+			},
+		}
+
+		w.Header().Set(cnsReturnCode, reserveResp.Response.ReturnCode.String())
+		err = service.Listener.Encode(w, &reserveResp)
+		logger.ResponseEx(service.Name+operationName, ipconfigRequest, reserveResp, reserveResp.Response.ReturnCode, err)
+		return
+	}
+
 	// doesn't fill in DesiredIPAddresses if it is empty in the original request
 	ipconfigsRequest := cns.IPConfigsRequest{
 		PodInterfaceID:      ipconfigRequest.PodInterfaceID,
@@ -175,6 +192,24 @@ func (service *HTTPRestService) RequestIPConfigsHandler(w http.ResponseWriter, r
 	if err != nil {
 		return
 	}
+
+	// Check the status of the NC
+	ncStatuses := multiContainerStatus(service.state.ContainerStatus)
+	if unsuccessfulStatuses := ncStatuses.GetUnsuccessfulStatusErrors(); unsuccessfulStatuses != "" {
+		// If any status is anything other than success, we send a response back with the actual status and NC ID.
+		reserveResp := &cns.IPConfigResponse{
+			Response: cns.Response{
+				ReturnCode: types.FailedToAllocateIPConfig,
+				Message:    unsuccessfulStatuses,
+			},
+		}
+
+		w.Header().Set(cnsReturnCode, reserveResp.Response.ReturnCode.String())
+		err = service.Listener.Encode(w, &reserveResp)
+		logger.ResponseEx(service.Name+operationName, ipconfigsRequest, reserveResp, reserveResp.Response.ReturnCode, err)
+		return
+	}
+
 	var ipConfigsResp *cns.IPConfigsResponse
 
 	// Check if IPConfigsHandlerMiddleware is set

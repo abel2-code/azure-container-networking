@@ -116,6 +116,14 @@ type CreateNetworkContainerRequest struct {
 	NetworkInterfaceInfo       NetworkInterfaceInfo //nolint // introducing new field for backendnic, to be used later by cni code
 }
 
+const (
+	NCUpdateSubnetFull          = v1alpha.NCUpdateSubnetFull
+	NCUpdateInternalServerError = v1alpha.NCUpdateInternalServerError
+	NCUpdateUnauthorizedError   = v1alpha.NCUpdateUnauthorizedError
+	NCUpdateSuccess             = v1alpha.NCUpdateSuccess
+	NCUpdateFailed              = v1alpha.NCUpdateFailed
+)
+
 func (req *CreateNetworkContainerRequest) Validate() error {
 	if req.NetworkContainerid == "" {
 		return errors.Wrap(ErrInvalidNCID, "NetworkContainerID is empty")
